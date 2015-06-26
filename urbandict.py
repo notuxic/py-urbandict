@@ -34,18 +34,20 @@ class UrbanDictParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs_dict = dict(attrs)
 
-        if tag != "div":
+        if tag not in ('div', 'a'):
             return
 
-        div_class = attrs_dict.get('class')
-        if div_class in ('word', 'meaning', 'example'):
-            self._section = div_class
-            if div_class == 'word':  # NOTE: assume 'word' is the first section
+        tag_class = attrs_dict.get('class')
+        if tag_class in ('word', 'meaning', 'example'):
+            self._section = tag_class
+            if tag_class == 'word':  # NOTE: assume 'word' is the first section
                 self.translations.append(
                     {'word': '', 'def': '', 'example': ''})
 
     def handle_endtag(self, tag):
         if tag == 'div':
+			# NOTE: don't check for </a>, there may be links in meaning/example.
+			#   <a class="word"> is in another div too, so it will still reset _section
             #NOTE: assume there is no nested <div> in the known sections
             self._section = None
 
